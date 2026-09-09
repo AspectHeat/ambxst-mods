@@ -7,6 +7,8 @@
   "description": "Adds a VPN section to Settings with Tailscale and NordVPN pages, a provider handoff that hands the route from one to the other, and an optional Tailscale item in the bar tray.",
   "license": "MIT",
   "author": "Jay Robbins",
+  "authorUrl": "https://github.com/AspectHeat",
+  "homepage": "https://github.com/AspectHeat/ambxst-mods",
   "compatibility": {
     "api": 1,
     "ambxst": ">=1.3.0 <1.4.0",
