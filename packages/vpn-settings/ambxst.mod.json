@@ -1,0 +1,162 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Axenide/Ambxst/dev/docs/mods/manifest.schema.json",
+  "manifestVersion": 1,
+  "id": "aspect.vpn-settings",
+  "name": "VPN settings",
+  "version": "1.0.0",
+  "description": "Adds a VPN section to Settings with Tailscale and NordVPN pages, a provider handoff that hands the route from one to the other, and an optional Tailscale item in the bar tray.",
+  "license": "MIT",
+  "author": "Jay Robbins",
+  "compatibility": {
+    "api": 1,
+    "ambxst": ">=1.3.0 <1.4.0",
+    "testedBaseCommits": [
+      "95fd08e294c5bf2a20d1a2ea9490c2d0dfd32d37"
+    ]
+  },
+  "dependencies": [],
+  "conflicts": [],
+  "commands": [
+    "tailscale",
+    "nordvpn"
+  ],
+  "permissions": [
+    "Runs the tailscale CLI to read tailnet status and peers, and to set or clear an exit node",
+    "Runs the nordvpn CLI to read status, account and server lists, and to connect or disconnect",
+    "Changes which VPN provider owns the default route when you use the provider handoff",
+    "Reads and writes the tailscale, nordvpn and vpn keys in the Ambxst system config",
+    "Opens the Tailscale admin console in your browser when you ask it to"
+  ],
+  "operations": [
+    {
+      "type": "overlay",
+      "source": "payload/services/VpnService.qml",
+      "target": "modules/services/VpnService.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/NordVpnService.qml",
+      "target": "modules/services/NordVpnService.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/NordVpnCountry.qml",
+      "target": "modules/services/NordVpnCountry.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/TailscaleService.qml",
+      "target": "modules/services/TailscaleService.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/TailscalePeer.qml",
+      "target": "modules/services/TailscalePeer.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/nordvpn-parse.js",
+      "target": "modules/services/nordvpn-parse.js"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/nordvpn-iso.js",
+      "target": "modules/services/nordvpn-iso.js"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/components/VpnSegmentedSwitch.qml",
+      "target": "modules/components/VpnSegmentedSwitch.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/VpnPanel.qml",
+      "target": "modules/widgets/dashboard/controls/VpnPanel.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/VpnHandoffCard.qml",
+      "target": "modules/widgets/dashboard/controls/VpnHandoffCard.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/NordVpnPanel.qml",
+      "target": "modules/widgets/dashboard/controls/NordVpnPanel.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/NordVpnPanelHeader.qml",
+      "target": "modules/widgets/dashboard/controls/NordVpnPanelHeader.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/NordVpnConnectionCard.qml",
+      "target": "modules/widgets/dashboard/controls/NordVpnConnectionCard.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/NordVpnAdvancedCard.qml",
+      "target": "modules/widgets/dashboard/controls/NordVpnAdvancedCard.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/NordVpnCountryItem.qml",
+      "target": "modules/widgets/dashboard/controls/NordVpnCountryItem.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/NordVpnSetupCard.qml",
+      "target": "modules/widgets/dashboard/controls/NordVpnSetupCard.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/TailscalePanel.qml",
+      "target": "modules/widgets/dashboard/controls/TailscalePanel.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/TailscalePeerItem.qml",
+      "target": "modules/widgets/dashboard/controls/TailscalePeerItem.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/systray/TailscaleTrayItem.qml",
+      "target": "modules/bar/systray/TailscaleTrayItem.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/assets/nordvpn.svg",
+      "target": "assets/nordvpn/nordvpn.svg"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/assets/tailscale-icon-white.svg",
+      "target": "assets/tailscale/tailscale-icon-white.svg"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/scripts/setup-nordvpn.sh",
+      "target": "scripts/setup-nordvpn.sh"
+    },
+    {
+      "type": "patch",
+      "source": "patches/vpn-config.patch"
+    },
+    {
+      "type": "patch",
+      "source": "patches/vpn-service-registration.patch"
+    },
+    {
+      "type": "patch",
+      "source": "patches/vpn-panel-titlebar-toggle.patch"
+    },
+    {
+      "type": "patch",
+      "source": "patches/vpn-settings-section.patch"
+    },
+    {
+      "type": "patch",
+      "source": "patches/vpn-systray.patch"
+    }
+  ]
+}

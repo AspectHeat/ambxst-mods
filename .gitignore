@@ -1,0 +1,15 @@
+graphify-out/
+*.tmp
+
+# Composing into a package directory instead of a scratch tree once copied a
+# whole Ambxst source tree in here. These can never be package content.
+packages/*/modules/
+packages/*/shell.qml
+packages/*/config/
+packages/*/assets/
+packages/*/scripts/
+
+# Local-only: a stopgap for an upstream defect rather than a feature, and
+# installed from this path on the author's machine.
+packages/brightness-backlight-device/
+upstream-patches/

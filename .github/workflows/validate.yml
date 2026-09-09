@@ -1,0 +1,53 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Upstream moves and a patch's context moves with it. A weekly run turns
+    # "these patches stopped applying" into a notification instead of a
+    # discovery made while enabling a mod.
+    - cron: '0 6 * * 1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The declared compatibility floor and the base the packages record in
+          # testedBaseCommits. This one has to pass.
+          - ref: '1.3.2'
+            required: true
+          # Upstream's development branch. Allowed to fail: it is an early
+          # warning that a patch needs regenerating, not a broken package.
+          - ref: 'dev'
+            required: false
+    name: "Ambxst ${{ matrix.ref }}${{ matrix.required && '' || ' (advisory)' }}"
+    continue-on-error: ${{ !matrix.required }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out Ambxst ${{ matrix.ref }}
+        run: |
+          git clone --depth 1 --branch "${{ matrix.ref }}" \
+            https://github.com/Axenide/Ambxst.git "$RUNNER_TEMP/ambxst"
+          echo "AMBXST_SRC=$RUNNER_TEMP/ambxst" >> "$GITHUB_ENV"
+          echo "Ambxst $(cat "$RUNNER_TEMP/ambxst/version") at $(git -C "$RUNNER_TEMP/ambxst" rev-parse HEAD)"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install jsonschema
+        run: python -m pip install --quiet jsonschema
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate packages
+        run: ./scripts/validate.sh

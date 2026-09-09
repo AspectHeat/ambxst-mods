@@ -1,0 +1,66 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Axenide/Ambxst/dev/docs/mods/manifest.schema.json",
+  "manifestVersion": 1,
+  "id": "aspect.agent-usage-panel",
+  "name": "Agent usage panel",
+  "version": "1.0.0",
+  "description": "Adds a dashboard tab showing token usage, plan limits and reset windows for the coding agents installed locally, read from each provider's own on-disk data.",
+  "license": "MIT",
+  "author": "Jay Robbins",
+  "compatibility": {
+    "api": 1,
+    "ambxst": ">=1.3.0 <1.4.0",
+    "testedBaseCommits": [
+      "95fd08e294c5bf2a20d1a2ea9490c2d0dfd32d37"
+    ]
+  },
+  "dependencies": [],
+  "conflicts": [],
+  "commands": [
+    "python3"
+  ],
+  "permissions": [
+    "Reads local coding-agent data directories to total token usage: ~/.claude, ~/.codex, the Cursor config directory and the opencode database",
+    "Reads and writes ~/.config/ambxst/agents.json to record which agent is the default",
+    "Runs python3 against the bundled agent_usage.py on a timer"
+  ],
+  "settings": {
+    "schema": "settings.json"
+  },
+  "operations": [
+    {
+      "type": "overlay",
+      "source": "payload/services/AgentUsageService.qml",
+      "target": "modules/services/AgentUsageService.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/agents/AgentsTab.qml",
+      "target": "modules/widgets/dashboard/agents/AgentsTab.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/scripts/agent_usage.py",
+      "target": "scripts/agent_usage.py"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/assets/claude.svg",
+      "target": "assets/aiproviders/claude.svg"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/assets/cursor.svg",
+      "target": "assets/aiproviders/cursor.svg"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/assets/opencode-go.svg",
+      "target": "assets/aiproviders/opencode-go.svg"
+    },
+    {
+      "type": "patch",
+      "source": "patches/dashboard-agents-tab.patch"
+    }
+  ]
+}

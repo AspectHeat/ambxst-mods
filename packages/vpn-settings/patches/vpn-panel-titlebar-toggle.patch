@@ -1,0 +1,79 @@
+diff --git a/modules/widgets/dashboard/controls/PanelTitlebar.qml b/modules/widgets/dashboard/controls/PanelTitlebar.qml
+index 1113019a..f6cc3104 100644
+--- a/modules/widgets/dashboard/controls/PanelTitlebar.qml
++++ b/modules/widgets/dashboard/controls/PanelTitlebar.qml
+@@ -16,6 +16,7 @@ RowLayout {
+     property color statusColor: Styling.srItem("overprimary")
+     property bool showToggle: false
+     property bool toggleChecked: false
++    property bool toggleEnabled: true
+ 
+     // Action buttons configuration
+     // Each action: { icon: "...", tooltip: "...", onClicked: function, enabled: true, loading: false }
+@@ -26,6 +27,30 @@ RowLayout {
+ 
+     signal toggleChanged(bool checked)
+ 
++    // Qt Quick Controls assigns Switch.checked imperatively when the user clicks,
++    // which destroys the `checked: root.toggleChecked` binding below. Without this
++    // the switch stops tracking its service after the first interaction and its
++    // position becomes a lie. Re-assert the external value on every change, with a
++    // re-entrancy latch, matching ShellPanel.qml's ToggleRow.
++    property bool _updating: false
++
++    function syncToggle(): void {
++        if (_updating || toggleSwitch.checked === toggleChecked)
++            return;
++        _updating = true;
++        toggleSwitch.checked = toggleChecked;
++        _updating = false;
++    }
++
++    onToggleCheckedChanged: root.syncToggle()
++
++    // Also on re-enable. onToggleCheckedChanged alone left a hole: if the user flips
++    // the switch and the mutation FAILS, the service value never changes, so no change
++    // signal fires and the switch stays stuck showing the state the user asked for
++    // rather than the real one. toggleEnabled goes false->true when the mutation
++    // settles either way, which is the reliable moment to reconcile.
++    onToggleEnabledChanged: if (root.toggleEnabled) root.syncToggle()
++
+     Layout.fillWidth: true
+     Layout.preferredHeight: 36
+     spacing: 8
+@@ -116,7 +141,16 @@ RowLayout {
+         id: toggleSwitch
+         visible: root.showToggle
+         checked: root.toggleChecked
+-        onCheckedChanged: root.toggleChanged(checked)
++        enabled: root.toggleEnabled
++        onToggled: {
++            root.toggleChanged(checked);
++            // Reconcile shortly after, unconditionally. onToggleCheckedChanged only fires
++            // when the bound value CHANGES, and onToggleEnabledChanged only when the
++            // control disables then re-enables, so a mutation rejected outright (guard
++            // returns immediately, nothing changes) left the switch showing what the user
++            // asked for rather than reality. This catches every such case generically.
++            toggleResync.restart();
++        }
+ 
+         indicator: Rectangle {
+             implicitWidth: 40
+@@ -153,4 +187,17 @@ RowLayout {
+         }
+         background: null
+     }
++
++    Timer {
++        id: toggleResync
++        // Short, because this exists to catch a click the service REJECTED outright, which
++        // resolves synchronously; waiting longer just shows a wrong switch for longer.
++        interval: 250
++        repeat: false
++
++        // Only resync if the control is still enabled. If a mutation actually started, the
++        // host drops toggleEnabled, and reverting here would stomp the optimistic state
++        // mid-connect; onToggleEnabledChanged reconciles when it settles instead.
++        onTriggered: if (root.toggleEnabled) root.syncToggle()
++    }
+ }

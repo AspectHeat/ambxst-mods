@@ -1,0 +1,105 @@
+diff --git a/modules/widgets/dashboard/controls/SettingsIndex.qml b/modules/widgets/dashboard/controls/SettingsIndex.qml
+index 25c46427..af38c90c 100644
+--- a/modules/widgets/dashboard/controls/SettingsIndex.qml
++++ b/modules/widgets/dashboard/controls/SettingsIndex.qml
+@@ -1,6 +1,7 @@
+ // this file is used to index all searchable items in the settings tab
+ 
+ import QtQuick
++import qs.config
+ import qs.modules.theme
+ 
+ QtObject {
+@@ -15,6 +16,24 @@ QtObject {
+     
+     property var dynamicItems: []
+ 
++    // VPN lives at section 11: upstream 1.3.2 already occupies 0 through 10.
++    readonly property var vpnItems: (Config.system.tailscale.enabled || Config.system.nordvpn.enabled) ? [
++        { label: "VPN", keywords: "virtual private network providers", section: 11, subSection: "", subLabel: "", icon: Icons.vpn, isIcon: true }
++    ].concat(Config.system.tailscale.enabled ? [
++        { label: "Tailscale", keywords: "vpn mesh tailnet wireguard remote", section: 11, subSection: "tailscale", subLabel: "VPN", icon: Icons.vpn, isIcon: true },
++        { label: "Tailscale IP", keywords: "copy address ip magicdns dns", section: 11, subSection: "tailscale", subLabel: "VPN > Tailscale", icon: Icons.copy, isIcon: true },
++        { label: "Exit Node", keywords: "route traffic vpn egress exit", section: 11, subSection: "tailscale", subLabel: "VPN > Tailscale", icon: Icons.globe, isIcon: true },
++        { label: "Tailnet Profile", keywords: "account switch login profile", section: 11, subSection: "tailscale", subLabel: "VPN > Tailscale", icon: Icons.user, isIcon: true }
++    ] : []).concat(Config.system.nordvpn.enabled ? [
++        { label: "NordVPN", keywords: "vpn privacy commercial nordlynx wireguard", section: 11, subSection: "nordvpn", subLabel: "VPN", icon: Icons.vpn, isIcon: true },
++        // Deliberately not "Live VPN Servers": there is no per-server browsing and no
++        // load metric, so that label advertised a feature that does not exist.
++        { label: "VPN Locations", keywords: "country city location flag region server", section: 11, subSection: "nordvpn", subLabel: "VPN > NordVPN", icon: Icons.globe, isIcon: true },
++        { label: "P2P VPN", keywords: "peer torrent speed optimized group", section: 11, subSection: "nordvpn", subLabel: "VPN > NordVPN", icon: Icons.lightning, isIcon: true },
++        { label: "Quick Connect", keywords: "recommended nordvpn connect fastest", section: 11, subSection: "nordvpn", subLabel: "VPN > NordVPN", icon: Icons.lightning, isIcon: true },
++        { label: "Switch VPN Provider", keywords: "handoff swap between tailscale nordvpn route egress", section: 11, subSection: "", subLabel: "VPN", icon: Icons.vpn, isIcon: true }
++    ] : []) : []
++
+     readonly property var staticItems: [
+         // --- Mods ---
+         { label: "Mods", keywords: "extensions plugins modifications packages", section: 10, subSection: "", subLabel: "", icon: Icons.puzzlePiece, isIcon: true },
+@@ -215,7 +234,7 @@ QtObject {
+         { label: "Shell System", keywords: "config settings ambxst", section: 8, subSection: "system", subLabel: "Ambxst > System", icon: Icons.circuitry, isIcon: true }
+     ]
+ 
+-    property var items: staticItems.concat(dynamicItems)
++    property var items: staticItems.concat(dynamicItems).concat(vpnItems)
+ 
+     function addDynamicItems(newItems) {
+         // Simple deduplication based on label + section
+diff --git a/modules/widgets/dashboard/controls/SettingsTab.qml b/modules/widgets/dashboard/controls/SettingsTab.qml
+index df78932b..b33bffad 100644
+--- a/modules/widgets/dashboard/controls/SettingsTab.qml
++++ b/modules/widgets/dashboard/controls/SettingsTab.qml
+@@ -16,7 +16,7 @@ Rectangle {
+     color: "transparent"
+     implicitWidth: 400
+     implicitHeight: 300
+-    // 0: Network, 1: Bluetooth, 2: Mixer, 3: AI, 4: Effects, 5: Theme, 6: Binds, 7: System, 8: Compositor, 9: Shell
++    // 0: Network, 1: Bluetooth, 2: Mixer, 3: AI, 4: Effects, 5: Theme, 6: Binds, 7: System, 8: Compositor, 9: Shell, 10: Mods, 11: VPN
+ 
+     property int currentSection: 0
+     property int selectedIndex: GlobalStates.settingsCurrentTab
+@@ -126,8 +126,8 @@ Rectangle {
+         if (!subSectionId || subSectionId === "")
+             return;
+ 
+-        // Panels that support subsections: Theme(5), System(7), Compositor(8), Shell(9)
+-        if ([5, 7, 8, 9].includes(sectionId)) {
++        // Panels that support subsections: Theme(5), System(7), Compositor(8), Shell(9), VPN(11)
++        if ([5, 7, 8, 9, 11].includes(sectionId)) {
+             if (panelLoader.item && panelLoader.status === Loader.Ready) {
+                 panelLoader.item.currentSection = subSectionId;
+             } else {
+@@ -206,7 +206,13 @@ Rectangle {
+             label: "Network",
+             section: 0,
+             isIcon: true
+-        },
++        }
++    ].concat(Config.system.tailscale.enabled || Config.system.nordvpn.enabled ? [{
++        icon: Icons.vpn,
++        label: "VPN",
++        section: 11,
++        isIcon: true
++    }] : []).concat([
+         {
+             icon: Icons.bluetooth,
+             label: "Bluetooth",
+@@ -267,7 +273,7 @@ Rectangle {
+             section: 9,
+             isIcon: false
+         }
+-    ]
++    ])
+ 
+     // Filtered sections based on search query
+     readonly property var filteredSections: {
+@@ -606,6 +612,10 @@ Rectangle {
+                 {
+                     component: "ModsPanel.qml",
+                     section: 10
++                },
++                {
++                    component: "VpnPanel.qml",
++                    section: 11
+                 }
+             ]
+ 

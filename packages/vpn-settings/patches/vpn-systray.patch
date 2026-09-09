@@ -1,0 +1,48 @@
+diff --git a/modules/bar/systray/SysTray.qml b/modules/bar/systray/SysTray.qml
+index 83464b58..b7efe082 100644
+--- a/modules/bar/systray/SysTray.qml
++++ b/modules/bar/systray/SysTray.qml
+@@ -1,8 +1,10 @@
+ import QtQuick
+ import QtQuick.Layouts
+ import Quickshell.Services.SystemTray
++import qs.config
+ import qs.modules.theme
+ import qs.modules.components
++import qs.modules.services
+ 
+     StyledRect {
+     variant: "bg"
+@@ -26,7 +28,8 @@ import qs.modules.components
+     property bool vertical: bar.orientation === "vertical"
+ 
+     // Hide completely when empty - check both orientations
+-    readonly property bool hasItems: rowRepeater.count > 0 || columnRepeater.count > 0
++    readonly property bool tailscaleVisible: TailscaleService.available && Config.system.tailscale.enabled && Config.system.tailscale.showInBar
++    readonly property bool hasItems: rowRepeater.count > 0 || columnRepeater.count > 0 || tailscaleVisible
+ 
+     // Ajustes de tamaño dinámicos según orientación
+     height: vertical ? implicitHeight : parent.height
+@@ -51,6 +54,11 @@ import qs.modules.components
+                 item: modelData
+             }
+         }
++
++        TailscaleTrayItem {
++            visible: root.tailscaleVisible
++            bar: root.bar
++        }
+     }
+ 
+     ColumnLayout {
+@@ -70,5 +78,10 @@ import qs.modules.components
+                 item: modelData
+             }
+         }
++
++        TailscaleTrayItem {
++            visible: root.tailscaleVisible
++            bar: root.bar
++        }
+     }
+ }
