@@ -32,27 +32,6 @@ failed build never touches the running shell.
 
 More packages can be added as features are ported from the long-running Ambxst fork.
 
-## Screenshots
-
-### Agent usage panel
-
-![Agent usage panel](screenshots/agent-usage-panel.png)
-
-### VPN settings
-
-![VPN settings](screenshots/vpn-settings.png)
-
-### NordVPN
-
-![NordVPN](screenshots/nordvpn.png)
-
-### Tailscale
-
-Network addresses, DNS details, device names and other fleet information are
-redacted in this screenshot.
-
-![Tailscale settings with private details redacted](screenshots/tailscale-redacted.png)
-
 ## License
 
 MIT. See [LICENSE](LICENSE).
