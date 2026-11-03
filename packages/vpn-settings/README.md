@@ -41,7 +41,7 @@ CLI and shows "Not installed" when it is missing, so you only need the
 providers you use. The NordVPN page has a setup button that installs and
 configures the `nordvpn` CLI for you.
 
-Works with Ambxst `>=1.3.0 <1.4.0`.
+Works with Ambxst `>=1.3.14 <1.4.0`.
 
 ## Switching providers
 

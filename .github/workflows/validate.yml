@@ -20,7 +20,7 @@ jobs:
         include:
           # The declared compatibility floor and the base the packages record in
           # testedBaseCommits. This one has to pass.
-          - ref: '1.3.2'
+          - ref: '1.3.14'
             label: 'required'
             required: true
           # Upstream's development branch. Allowed to fail: it is an early
