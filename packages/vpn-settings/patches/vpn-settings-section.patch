@@ -1,5 +1,5 @@
 diff --git a/modules/widgets/dashboard/controls/SettingsIndex.qml b/modules/widgets/dashboard/controls/SettingsIndex.qml
-index 0ef7617..08f1679 100644
+index 299fe52..96b30e2 100644
 --- a/modules/widgets/dashboard/controls/SettingsIndex.qml
 +++ b/modules/widgets/dashboard/controls/SettingsIndex.qml
 @@ -1,6 +1,7 @@
@@ -34,8 +34,8 @@ index 0ef7617..08f1679 100644
 +
      readonly property var staticItems: [
          // --- Mods ---
-         { label: "Mods", keywords: "extensions plugins modifications packages", section: 10, subSection: "", subLabel: "", icon: Icons.puzzlePiece, isIcon: true },
-@@ -217,7 +236,7 @@ QtObject {
+         { label: I18n.t("mods.title"), keywords: I18n.t("mods.search_keywords"), section: 10, subSection: "", subLabel: "", icon: Icons.puzzlePiece, isIcon: true },
+@@ -218,7 +237,7 @@ QtObject {
          { label: I18n.t("settings.shell.system_entry"), keywords: "config settings ambxst", section: 8, subSection: "system", subLabel: I18n.t("settings.ambxst") + " > " + I18n.t("settings.shell.system"), icon: Icons.circuitry, isIcon: true }
      ]
  
@@ -45,7 +45,7 @@ index 0ef7617..08f1679 100644
      function addDynamicItems(newItems) {
          // Simple deduplication based on label + section
 diff --git a/modules/widgets/dashboard/controls/SettingsTab.qml b/modules/widgets/dashboard/controls/SettingsTab.qml
-index aaef9ec..75f13b4 100644
+index 57b1660..5ea95db 100644
 --- a/modules/widgets/dashboard/controls/SettingsTab.qml
 +++ b/modules/widgets/dashboard/controls/SettingsTab.qml
 @@ -16,7 +16,7 @@ Rectangle {
@@ -57,7 +57,7 @@ index aaef9ec..75f13b4 100644
  
      property int currentSection: 0
      property int selectedIndex: GlobalStates.settingsCurrentTab
-@@ -126,8 +126,8 @@ Rectangle {
+@@ -131,8 +131,8 @@ Rectangle {
          if (!subSectionId || subSectionId === "")
              return;
  
@@ -68,7 +68,7 @@ index aaef9ec..75f13b4 100644
              if (panelLoader.item && panelLoader.status === Loader.Ready) {
                  panelLoader.item.currentSection = subSectionId;
              } else {
-@@ -206,7 +206,13 @@ Rectangle {
+@@ -211,7 +211,13 @@ Rectangle {
              label: I18n.t("settings.network"),
              section: 0,
              isIcon: true
@@ -83,7 +83,7 @@ index aaef9ec..75f13b4 100644
          {
              icon: Icons.bluetooth,
              label: I18n.t("settings.bluetooth"),
-@@ -267,7 +273,7 @@ Rectangle {
+@@ -272,7 +278,7 @@ Rectangle {
              section: 9,
              isIcon: false
          }
@@ -92,7 +92,7 @@ index aaef9ec..75f13b4 100644
  
      // Filtered sections based on search query
      readonly property var filteredSections: {
-@@ -606,6 +612,10 @@ Rectangle {
+@@ -611,6 +617,10 @@ Rectangle {
                  {
                      component: "ModsPanel.qml",
                      section: 10

@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Effects
 import QtQuick.Layouts
 import qs.config
 import qs.modules.components
@@ -14,32 +13,7 @@ Item {
 
     property int maxContentWidth: 480
     property string currentSection: ""
-    property bool tailscalePositioned: false
-    property bool nordVpnPositioned: false
     readonly property int contentWidth: Math.min(width, maxContentWidth)
-
-    function positionTailscaleOnFirstVisit(): void {
-        if (root.tailscalePositioned || !tailscaleLoader.item)
-            return;
-        root.tailscalePositioned = true;
-        // The retained panel may have compiled while its Loader was hidden and had no usable
-        // viewport geometry. Wait until this visit has made it visible before positioning.
-        Qt.callLater(() => tailscaleLoader.item.positionAtBeginning());
-    }
-
-    function positionNordVpnOnFirstVisit(): void {
-        if (root.nordVpnPositioned || !nordVpnLoader.item)
-            return;
-        root.nordVpnPositioned = true;
-        Qt.callLater(() => nordVpnLoader.item.positionAtBeginning());
-    }
-
-    onCurrentSectionChanged: {
-        if (root.currentSection === "tailscale")
-            root.positionTailscaleOnFirstVisit();
-        else if (root.currentSection === "nordvpn")
-            root.positionNordVpnOnFirstVisit();
-    }
 
     ColumnLayout {
         visible: root.currentSection === ""
@@ -61,168 +35,16 @@ Item {
             color: Colors.overSurfaceVariant
         }
 
-        StyledRect {
-            id: tailscaleCard
+        // One card per enabled provider, in registry order (VpnProviders.qml).
+        Repeater {
+            model: VpnProviders.providers
 
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            variant: tailscaleMouseArea.containsMouse ? "focus" : "pane"
-            radius: Styling.radius(0)
+            ProviderCard {
+                required property VpnProvider modelData
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: 12
-
-                StyledRect {
-                    Layout.preferredWidth: 32
-                    Layout.preferredHeight: 32
-                    variant: TailscaleService.connected ? "primary" : "internalbg"
-                    radius: Styling.radius(2)
-
-                    Image {
-                        anchors.centerIn: parent
-                        width: 20
-                        height: 20
-                        source: Qt.resolvedUrl("../../../../assets/tailscale/tailscale-icon-white.svg")
-                        sourceSize: Qt.size(40, 40)
-                        smooth: true
-
-                        layer.enabled: true
-                        layer.effect: MultiEffect {
-                            colorization: 1
-                            colorizationColor: TailscaleService.connected
-                                ? Styling.srItem("primary") : Colors.overBackground
-                        }
-                    }
-                }
-
-                Text {
-                    text: "Tailscale"
-                    font.family: Config.theme.font
-                    font.pixelSize: Styling.fontSize(0)
-                    font.bold: true
-                    color: Colors.overBackground
-                }
-
-                Text {
-                    // "Connected" alone is misleading: mesh access is not egress.
-                    text: !TailscaleService.connected ? "Off"
-                        : (VpnService.routeOwner === "tailscale" ? "Exit node" : "Mesh only")
-                    font.family: Config.theme.font
-                    font.pixelSize: Styling.fontSize(-2)
-                    color: TailscaleService.connected ? Styling.srItem("overprimary") : Colors.overSurfaceVariant
-                }
-
-                Item {
-                    Layout.fillWidth: true
-                }
-
-                Text {
-                    text: Icons.caretRight
-                    font.family: Icons.font
-                    font.pixelSize: 20
-                    color: Colors.overSurfaceVariant
-                }
-            }
-
-            MouseArea {
-                id: tailscaleMouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                // Both cards are inert during a handoff, so a second network mutation
-                // cannot be started while one is in flight.
-                enabled: TailscaleService.available && !VpnService.busy
-                    && !VpnService.awaitingConfirmation
-                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                onClicked: root.currentSection = "tailscale"
-            }
-        }
-
-        StyledRect {
-            id: nordVpnCard
-
-            Layout.fillWidth: true
-            Layout.preferredHeight: 56
-            variant: nordVpnMouseArea.containsMouse ? "focus" : "pane"
-            radius: Styling.radius(0)
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: 12
-
-                StyledRect {
-                    Layout.preferredWidth: 32
-                    Layout.preferredHeight: 32
-                    variant: NordVpnService.connected ? "primary" : "internalbg"
-                    radius: Styling.radius(2)
-
-                    Image {
-                        anchors.centerIn: parent
-                        width: 20
-                        height: 20
-                        source: Qt.resolvedUrl("../../../../assets/nordvpn/nordvpn.svg")
-                        sourceSize: Qt.size(40, 40)
-                        smooth: true
-                        mipmap: true
-
-                        layer.enabled: true
-                        layer.effect: MultiEffect {
-                            colorization: 1
-                            colorizationColor: NordVpnService.connected
-                                ? Styling.srItem("primary") : Colors.overBackground
-                        }
-                    }
-                }
-
-                Text {
-                    text: "NordVPN"
-                    font.family: Config.theme.font
-                    font.pixelSize: Styling.fontSize(0)
-                    font.bold: true
-                    color: Colors.overBackground
-                }
-
-                Text {
-                    // Mirrors the provider page's state vocabulary.
-                    text: !NordVpnService.available ? "Not installed"
-                        : NordVpnService.permissionDenied ? "Permission denied"
-                        : !NordVpnService.daemonReachable ? "Daemon unavailable"
-                        : NordVpnService.needsLogin ? "Login required"
-                        : NordVpnService.connecting ? "Connecting…"
-                        : NordVpnService.disconnecting ? "Disconnecting…"
-                        : NordVpnService.connected ? "Connected" : "Off"
-                    font.family: Config.theme.font
-                    font.pixelSize: Styling.fontSize(-2)
-                    color: NordVpnService.connected ? Styling.srItem("overprimary")
-                        : (!NordVpnService.available || NordVpnService.needsLogin
-                            || NordVpnService.permissionDenied
-                            || !NordVpnService.daemonReachable
-                            ? Colors.warning : Colors.overSurfaceVariant)
-                }
-
-                Item {
-                    Layout.fillWidth: true
-                }
-
-                Text {
-                    text: Icons.caretRight
-                    font.family: Icons.font
-                    font.pixelSize: 20
-                    color: Colors.overSurfaceVariant
-                }
-            }
-
-            MouseArea {
-                id: nordVpnMouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                enabled: !VpnService.busy && !VpnService.awaitingConfirmation
-                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                // Opens the page even when the CLI is missing, so the setup card can explain
-                // what to install rather than the row being a dead end.
-                onClicked: root.currentSection = "nordvpn"
+                provider: modelData
+                visible: modelData.enabled
+                onClicked: root.currentSection = modelData.providerId
             }
         }
 
@@ -270,63 +92,70 @@ Item {
     // Preserves an in-flight or awaiting-confirmation handoff (see VpnService.clearTransient).
     Component.onCompleted: VpnService.clearTransient()
 
-    // Compile both provider pages in the background as soon as the hub mounts, then retain
-    // them. The previous single Loader started only after a provider click and destroyed its
-    // item on every switch, so the user watched Tailscale construct itself in stages and lost
-    // local scroll/expanded state. Visibility changes are now navigation-only.
-    Loader {
-        id: tailscaleLoader
-        anchors.fill: parent
-        active: true
-        visible: root.currentSection === "tailscale"
-        source: "TailscalePanel.qml"
-        // Background preload stays asynchronous. Selecting this provider flips the Loader
-        // synchronous, forcing any in-progress incubation to finish before it is shown.
-        asynchronous: root.currentSection !== "tailscale"
+    // Compile every enabled provider page in the background as soon as the hub mounts, then
+    // retain it. The previous single Loader started only after a provider click and destroyed
+    // its item on every switch, so the user watched Tailscale construct itself in stages and
+    // lost local scroll/expanded state. Visibility changes are now navigation-only.
+    Repeater {
+        model: VpnProviders.providers
 
-        onLoaded: {
-            if (item) {
-                item.maxContentWidth = root.maxContentWidth;
-                item.showBackButton = true;
-                if (root.currentSection === "tailscale")
-                    root.positionTailscaleOnFirstVisit();
+        Loader {
+            id: pageLoader
+
+            required property VpnProvider modelData
+            property bool positioned: false
+            readonly property bool selected: root.currentSection === pageLoader.modelData.providerId
+
+            function positionOnFirstVisit(): void {
+                if (pageLoader.positioned || !pageLoader.item)
+                    return;
+                pageLoader.positioned = true;
+                // The retained page may have compiled while its Loader was hidden and had no
+                // usable viewport geometry. Wait until this visit has made it visible before
+                // positioning. Optional: a page without the function is simply not positioned.
+                const page = pageLoader.item;
+                if (typeof page.positionAtBeginning === "function")
+                    Qt.callLater(() => page.positionAtBeginning());
             }
-        }
-    }
 
-    Loader {
-        id: nordVpnLoader
-        anchors.fill: parent
-        active: true
-        visible: root.currentSection === "nordvpn"
-        source: "NordVpnPanel.qml"
-        asynchronous: root.currentSection !== "nordvpn"
+            anchors.fill: parent
+            active: pageLoader.modelData.enabled && pageLoader.modelData.page !== ""
+            visible: pageLoader.selected
+            source: pageLoader.modelData.page
+            // Background preload stays asynchronous. Selecting this provider flips the Loader
+            // synchronous, forcing any in-progress incubation to finish before it is shown.
+            asynchronous: !pageLoader.selected
 
-        onLoaded: {
-            if (item) {
-                item.maxContentWidth = root.maxContentWidth;
-                item.showBackButton = true;
-                if (root.currentSection === "nordvpn")
-                    root.positionNordVpnOnFirstVisit();
+            onLoaded: {
+                if (item) {
+                    if ("maxContentWidth" in item)
+                        item.maxContentWidth = root.maxContentWidth;
+                    if ("showBackButton" in item)
+                        item.showBackButton = true;
+                    if (pageLoader.selected)
+                        pageLoader.positionOnFirstVisit();
+                }
             }
-        }
-    }
 
-    Connections {
-        target: tailscaleLoader.item
-        ignoreUnknownSignals: true
+            Connections {
+                target: root
 
-        function onBackRequested() {
-            root.currentSection = "";
-        }
-    }
+                // Compared directly rather than through `selected`, whose binding may not have
+                // re-evaluated yet when this handler runs.
+                function onCurrentSectionChanged() {
+                    if (root.currentSection === pageLoader.modelData.providerId)
+                        pageLoader.positionOnFirstVisit();
+                }
+            }
 
-    Connections {
-        target: nordVpnLoader.item
-        ignoreUnknownSignals: true
+            Connections {
+                target: pageLoader.item
+                ignoreUnknownSignals: true
 
-        function onBackRequested() {
-            root.currentSection = "";
+                function onBackRequested() {
+                    root.currentSection = "";
+                }
+            }
         }
     }
 }

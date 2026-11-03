@@ -34,6 +34,26 @@
     },
     {
       "type": "overlay",
+      "source": "payload/services/VpnProvider.qml",
+      "target": "modules/services/VpnProvider.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/VpnProviders.qml",
+      "target": "modules/services/VpnProviders.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/TailscaleProvider.qml",
+      "target": "modules/services/TailscaleProvider.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/services/NordVpnProvider.qml",
+      "target": "modules/services/NordVpnProvider.qml"
+    },
+    {
+      "type": "overlay",
       "source": "payload/services/NordVpnService.qml",
       "target": "modules/services/NordVpnService.qml"
     },
@@ -71,6 +91,11 @@
       "type": "overlay",
       "source": "payload/controls/VpnPanel.qml",
       "target": "modules/widgets/dashboard/controls/VpnPanel.qml"
+    },
+    {
+      "type": "overlay",
+      "source": "payload/controls/ProviderCard.qml",
+      "target": "modules/widgets/dashboard/controls/ProviderCard.qml"
     },
     {
       "type": "overlay",
