@@ -1,41 +1,23 @@
 diff --git a/modules/widgets/dashboard/controls/SettingsIndex.qml b/modules/widgets/dashboard/controls/SettingsIndex.qml
-index 299fe52..96b30e2 100644
+index 299fe52..7737672 100644
 --- a/modules/widgets/dashboard/controls/SettingsIndex.qml
 +++ b/modules/widgets/dashboard/controls/SettingsIndex.qml
-@@ -1,6 +1,7 @@
- // this file is used to index all searchable items in the settings tab
- 
- import QtQuick
-+import qs.config
- import qs.modules.theme
- import qs.modules.services
- 
-@@ -16,6 +17,24 @@ QtObject {
+@@ -16,6 +16,14 @@ QtObject {
      
      property var dynamicItems: []
  
-+    // VPN lives at section 11: upstream 1.3.2 already occupies 0 through 10.
-+    readonly property var vpnItems: (Config.system.tailscale.enabled || Config.system.nordvpn.enabled) ? [
++    // VPN lives at section 11: upstream 1.3.2 already occupies 0 through 10. Provider
++    // entries come from each provider (VpnProvider.searchItems, subSection = provider id).
++    readonly property var vpnItems: VpnProviders.anyEnabled ? [
 +        { label: "VPN", keywords: "virtual private network providers", section: 11, subSection: "", subLabel: "", icon: Icons.vpn, isIcon: true }
-+    ].concat(Config.system.tailscale.enabled ? [
-+        { label: "Tailscale", keywords: "vpn mesh tailnet wireguard remote", section: 11, subSection: "tailscale", subLabel: "VPN", icon: Icons.vpn, isIcon: true },
-+        { label: "Tailscale IP", keywords: "copy address ip magicdns dns", section: 11, subSection: "tailscale", subLabel: "VPN > Tailscale", icon: Icons.copy, isIcon: true },
-+        { label: "Exit Node", keywords: "route traffic vpn egress exit", section: 11, subSection: "tailscale", subLabel: "VPN > Tailscale", icon: Icons.globe, isIcon: true },
-+        { label: "Tailnet Profile", keywords: "account switch login profile", section: 11, subSection: "tailscale", subLabel: "VPN > Tailscale", icon: Icons.user, isIcon: true }
-+    ] : []).concat(Config.system.nordvpn.enabled ? [
-+        { label: "NordVPN", keywords: "vpn privacy commercial nordlynx wireguard", section: 11, subSection: "nordvpn", subLabel: "VPN", icon: Icons.vpn, isIcon: true },
-+        // Deliberately not "Live VPN Servers": there is no per-server browsing and no
-+        // load metric, so that label advertised a feature that does not exist.
-+        { label: "VPN Locations", keywords: "country city location flag region server", section: 11, subSection: "nordvpn", subLabel: "VPN > NordVPN", icon: Icons.globe, isIcon: true },
-+        { label: "P2P VPN", keywords: "peer torrent speed optimized group", section: 11, subSection: "nordvpn", subLabel: "VPN > NordVPN", icon: Icons.lightning, isIcon: true },
-+        { label: "Quick Connect", keywords: "recommended nordvpn connect fastest", section: 11, subSection: "nordvpn", subLabel: "VPN > NordVPN", icon: Icons.lightning, isIcon: true },
-+        { label: "Switch VPN Provider", keywords: "handoff swap between tailscale nordvpn route egress", section: 11, subSection: "", subLabel: "VPN", icon: Icons.vpn, isIcon: true }
++    ].concat(VpnProviders.searchItems).concat(VpnProviders.enabledProviders.length > 1 ? [
++        { label: "Switch VPN Provider", keywords: "handoff swap between " + VpnProviders.enabledProviders.map(provider => provider.providerId).join(" ") + " route egress", section: 11, subSection: "", subLabel: "VPN", icon: Icons.vpn, isIcon: true }
 +    ] : []) : []
 +
      readonly property var staticItems: [
          // --- Mods ---
          { label: I18n.t("mods.title"), keywords: I18n.t("mods.search_keywords"), section: 10, subSection: "", subLabel: "", icon: Icons.puzzlePiece, isIcon: true },
-@@ -218,7 +237,7 @@ QtObject {
+@@ -218,7 +226,7 @@ QtObject {
          { label: I18n.t("settings.shell.system_entry"), keywords: "config settings ambxst", section: 8, subSection: "system", subLabel: I18n.t("settings.ambxst") + " > " + I18n.t("settings.shell.system"), icon: Icons.circuitry, isIcon: true }
      ]
  
@@ -45,7 +27,7 @@ index 299fe52..96b30e2 100644
      function addDynamicItems(newItems) {
          // Simple deduplication based on label + section
 diff --git a/modules/widgets/dashboard/controls/SettingsTab.qml b/modules/widgets/dashboard/controls/SettingsTab.qml
-index 57b1660..5ea95db 100644
+index 57b1660..d3c55fd 100644
 --- a/modules/widgets/dashboard/controls/SettingsTab.qml
 +++ b/modules/widgets/dashboard/controls/SettingsTab.qml
 @@ -16,7 +16,7 @@ Rectangle {
@@ -74,7 +56,7 @@ index 57b1660..5ea95db 100644
              isIcon: true
 -        },
 +        }
-+    ].concat(Config.system.tailscale.enabled || Config.system.nordvpn.enabled ? [{
++    ].concat(VpnProviders.anyEnabled ? [{
 +        icon: Icons.vpn,
 +        label: "VPN",
 +        section: 11,

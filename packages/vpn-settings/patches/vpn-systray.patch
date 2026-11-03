@@ -1,36 +1,69 @@
 diff --git a/modules/bar/systray/SysTray.qml b/modules/bar/systray/SysTray.qml
-index ee1392e..9f1e758 100644
+index ee1392e..25246a9 100644
 --- a/modules/bar/systray/SysTray.qml
 +++ b/modules/bar/systray/SysTray.qml
-@@ -25,7 +25,8 @@ StyledRect {
+@@ -25,7 +25,21 @@ StyledRect {
      readonly property var overflowItems: allItems.filter(item => hiddenIds.includes(item.id))
  
      // The tray collapses to a chevron-only pill while every icon is in the popup
 -    readonly property bool hasItems: allItems.length > 0
-+    readonly property bool tailscaleVisible: TailscaleService.available && Config.system.tailscale.enabled && Config.system.tailscale.showInBar
-+    readonly property bool hasItems: allItems.length > 0 || tailscaleVisible
++    readonly property bool hasItems: allItems.length > 0 || vpnTrayVisible
++
++    // VPN provider tray items (VpnProvider.trayComponent), drawn after the system tray icons.
++    // NordVPN has none: its own norduserd already puts one in the tray.
++    function showsVpnTray(provider): bool {
++        return provider.trayComponent !== null && provider.available && provider.enabled
++            && provider.showInBar;
++    }
++    readonly property bool vpnTrayVisible: {
++        for (let i = 0; i < VpnProviders.providers.length; i++) {
++            if (root.showsVpnTray(VpnProviders.providers[i]))
++                return true;
++        }
++        return false;
++    }
  
      // Menu popup currently opened from an icon inside the overflow popup
      property var activeChildMenu: null
-@@ -119,6 +120,11 @@ StyledRect {
+@@ -119,6 +133,21 @@ StyledRect {
              }
          }
  
-+        TailscaleTrayItem {
-+            visible: root.tailscaleVisible
-+            bar: root.bar
++        Repeater {
++            model: VpnProviders.providers
++
++            Loader {
++                required property var modelData
++
++                active: modelData.trayComponent !== null
++                visible: root.showsVpnTray(modelData)
++                sourceComponent: modelData.trayComponent
++                Layout.fillHeight: !root.vertical
++                Layout.fillWidth: root.vertical
++                onLoaded: item.bar = Qt.binding(() => root.bar)
++            }
 +        }
 +
          ChevronButton {
              id: chevronRow
              tray: root
-@@ -144,6 +150,11 @@ StyledRect {
+@@ -144,6 +173,21 @@ StyledRect {
              }
          }
  
-+        TailscaleTrayItem {
-+            visible: root.tailscaleVisible
-+            bar: root.bar
++        Repeater {
++            model: VpnProviders.providers
++
++            Loader {
++                required property var modelData
++
++                active: modelData.trayComponent !== null
++                visible: root.showsVpnTray(modelData)
++                sourceComponent: modelData.trayComponent
++                Layout.fillHeight: !root.vertical
++                Layout.fillWidth: root.vertical
++                onLoaded: item.bar = Qt.binding(() => root.bar)
++            }
 +        }
 +
          ChevronButton {
