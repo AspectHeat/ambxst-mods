@@ -70,9 +70,9 @@ To register it, a second mod overlays its provider file into
 above the end marker:
 
 ```diff
-     NordVpnProvider {}
-+    WireGuardProvider {}
-     // vpn-providers: end
+         NordVpnProvider {},
++        WireGuardProvider {},
+         // vpn-providers: end
 ```
 
 Ambxst merges inserts from several mods at the same anchor, so providers from
