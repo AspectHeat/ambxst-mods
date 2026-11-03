@@ -37,7 +37,9 @@ VpnProvider {
     ]
 
     // Loaded by URL rather than by type, so modules/services does not have to import the bar.
-    trayComponent: Qt.createComponent(Qt.resolvedUrl("../bar/systray/TailscaleTrayItem.qml"))
+    // Parented to this provider so the JavaScript garbage collector cannot reclaim it.
+    trayComponent: Qt.createComponent(Qt.resolvedUrl("../bar/systray/TailscaleTrayItem.qml"),
+        Component.PreferSynchronous, root)
 
     // Releasing the route clears the exit node instead of running `tailscale down`, so the
     // tailnet stays up through a handoff. "Allow LAN access" is never touched.

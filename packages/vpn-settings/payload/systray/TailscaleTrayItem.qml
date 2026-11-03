@@ -12,15 +12,18 @@ import qs.modules.widgets.dashboard.controls
 MouseArea {
     id: root
 
-    required property var bar
+    // Not `required`: the bar tray creates this through a Loader from
+    // VpnProvider.trayComponent, and a Loader cannot set required properties. The tray
+    // assigns it right after creation, so everything that reads it is null-safe.
+    property var bar: null
 
     property int trayItemSize: 20
     property bool isHovered: false
 
     acceptedButtons: Qt.LeftButton
     cursorShape: Qt.PointingHandCursor
-    Layout.fillHeight: bar.orientation === "horizontal"
-    Layout.fillWidth: bar.orientation === "vertical"
+    Layout.fillHeight: root.bar?.orientation === "horizontal"
+    Layout.fillWidth: root.bar?.orientation === "vertical"
     implicitWidth: trayItemSize
     implicitHeight: trayItemSize
 

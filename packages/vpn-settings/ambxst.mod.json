@@ -3,7 +3,7 @@
   "manifestVersion": 1,
   "id": "aspect.vpn-settings",
   "name": "VPN settings",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Adds a VPN section to Settings with Tailscale and NordVPN pages, a provider handoff that hands the route from one to the other, and an optional Tailscale item in the bar tray.",
   "license": "MIT",
   "author": "Jay Robbins",
