@@ -7,19 +7,22 @@ import Quickshell
 // The fixed list of VPN providers. Order here is the order of the hub cards, the tray items
 // and the Settings search entries.
 //
-// Each provider is one child line between the markers. Another mod adds its own provider with
-// a one-line patch that inserts `MyProvider {}` directly above the end marker; Ambxst's patch
-// merger keeps every mod's insert at the same anchor, so several such mods coexist in load
-// order. No folder scanning.
+// Each provider is one line between the markers, each ending in a comma (QML accepts the
+// trailing one). Another mod adds its own provider with a one-line patch that inserts
+// `MyProvider {},` directly above the end marker; Ambxst's patch merger keeps every mod's
+// insert at the same anchor, so several such mods coexist in load order. No folder scanning.
+//
+// This must be a list literal, not child objects: a Quickshell Singleton does not route
+// children into a `default property` declared on it, so that form left the list empty.
 Singleton {
     id: root
 
-    default property list<VpnProvider> providers
-
-    // vpn-providers: add one line per provider below
-    TailscaleProvider {}
-    NordVpnProvider {}
-    // vpn-providers: end
+    readonly property list<VpnProvider> providers: [
+        // vpn-providers: add one line per provider below
+        TailscaleProvider {},
+        NordVpnProvider {},
+        // vpn-providers: end
+    ]
 
     readonly property var enabledProviders: {
         const result = [];
