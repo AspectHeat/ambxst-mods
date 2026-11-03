@@ -43,6 +43,8 @@ Item {
         const handoff = VpnService.statusTextFor("tailscale");
         if (handoff !== "")
             return handoff;
+        if (!TailscaleService.available)
+            return "Not installed";
         if (TailscaleService.lastError !== "")
             return TailscaleService.lastError;
         if (TailscaleService.operatorMissing)

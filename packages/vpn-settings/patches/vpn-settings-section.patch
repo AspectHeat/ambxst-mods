@@ -1,5 +1,5 @@
 diff --git a/modules/widgets/dashboard/controls/SettingsIndex.qml b/modules/widgets/dashboard/controls/SettingsIndex.qml
-index 25c46427..af38c90c 100644
+index 0ef7617..08f1679 100644
 --- a/modules/widgets/dashboard/controls/SettingsIndex.qml
 +++ b/modules/widgets/dashboard/controls/SettingsIndex.qml
 @@ -1,6 +1,7 @@
@@ -8,9 +8,9 @@ index 25c46427..af38c90c 100644
  import QtQuick
 +import qs.config
  import qs.modules.theme
+ import qs.modules.services
  
- QtObject {
-@@ -15,6 +16,24 @@ QtObject {
+@@ -16,6 +17,24 @@ QtObject {
      
      property var dynamicItems: []
  
@@ -35,8 +35,8 @@ index 25c46427..af38c90c 100644
      readonly property var staticItems: [
          // --- Mods ---
          { label: "Mods", keywords: "extensions plugins modifications packages", section: 10, subSection: "", subLabel: "", icon: Icons.puzzlePiece, isIcon: true },
-@@ -215,7 +234,7 @@ QtObject {
-         { label: "Shell System", keywords: "config settings ambxst", section: 8, subSection: "system", subLabel: "Ambxst > System", icon: Icons.circuitry, isIcon: true }
+@@ -217,7 +236,7 @@ QtObject {
+         { label: I18n.t("settings.shell.system_entry"), keywords: "config settings ambxst", section: 8, subSection: "system", subLabel: I18n.t("settings.ambxst") + " > " + I18n.t("settings.shell.system"), icon: Icons.circuitry, isIcon: true }
      ]
  
 -    property var items: staticItems.concat(dynamicItems)
@@ -45,7 +45,7 @@ index 25c46427..af38c90c 100644
      function addDynamicItems(newItems) {
          // Simple deduplication based on label + section
 diff --git a/modules/widgets/dashboard/controls/SettingsTab.qml b/modules/widgets/dashboard/controls/SettingsTab.qml
-index df78932b..b33bffad 100644
+index aaef9ec..75f13b4 100644
 --- a/modules/widgets/dashboard/controls/SettingsTab.qml
 +++ b/modules/widgets/dashboard/controls/SettingsTab.qml
 @@ -16,7 +16,7 @@ Rectangle {
@@ -69,7 +69,7 @@ index df78932b..b33bffad 100644
                  panelLoader.item.currentSection = subSectionId;
              } else {
 @@ -206,7 +206,13 @@ Rectangle {
-             label: "Network",
+             label: I18n.t("settings.network"),
              section: 0,
              isIcon: true
 -        },
@@ -82,7 +82,7 @@ index df78932b..b33bffad 100644
 +    }] : []).concat([
          {
              icon: Icons.bluetooth,
-             label: "Bluetooth",
+             label: I18n.t("settings.bluetooth"),
 @@ -267,7 +273,7 @@ Rectangle {
              section: 9,
              isIcon: false

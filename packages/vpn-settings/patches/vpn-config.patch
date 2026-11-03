@@ -1,8 +1,8 @@
 diff --git a/config/Config.qml b/config/Config.qml
-index 96d6ab9e..dfa53a9e 100644
+index ab5ce35..2cb9285 100644
 --- a/config/Config.qml
 +++ b/config/Config.qml
-@@ -1007,6 +1007,30 @@ Singleton {
+@@ -1008,6 +1008,30 @@ Singleton {
          adapter: JsonAdapter {
              property list<string> disks: ["/"]
              property bool updateServiceEnabled: true
@@ -34,12 +34,12 @@ index 96d6ab9e..dfa53a9e 100644
                  property JsonObject general: JsonObject {
                      property string lock_cmd: "ambxst lock"
 diff --git a/config/defaults/system.js b/config/defaults/system.js
-index 7a0b45b1..c8c3d67d 100644
+index b7b2b2a..e52fe29 100644
 --- a/config/defaults/system.js
 +++ b/config/defaults/system.js
-@@ -3,6 +3,24 @@
- var data = {
+@@ -4,6 +4,24 @@ var data = {
      "disks": ["/"],
+     "language": "auto",
      "updateServiceEnabled": true,
 +    "tailscale": {
 +        "enabled": true,
