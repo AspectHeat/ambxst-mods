@@ -439,12 +439,12 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: VpnService.routeOwner === "nordvpn"
-                                    ? "Unavailable while NordVPN is connected"
+                                text: VpnService.routeOwnedByOther("tailscale")
+                                    ? "Unavailable while " + VpnService.otherOwnersLabel("tailscale") + " is connected"
                                     : (TailscaleService.exitNodeName || "None (direct)")
                                 font.family: Config.theme.font
                                 font.pixelSize: Styling.fontSize(-2)
-                                color: VpnService.routeOwner === "nordvpn"
+                                color: VpnService.routeOwnedByOther("tailscale")
                                     ? Colors.warning : Colors.overSurfaceVariant
                                 elide: Text.ElideRight
                                 wrapMode: Text.Wrap
@@ -456,14 +456,14 @@ Item {
                             flat: true
                             implicitWidth: 32
                             implicitHeight: 32
-                            // Blocked while NordVPN owns the default route: selecting an exit
+                            // Blocked while another provider owns the default route: selecting an exit
                             // node is itself an egress change, so allowing it here would route
                             // around VpnService's confirmation and leave two providers
                             // claiming egress. isMutating, not isUpdating, so a background
                             // read never disables it.
                             enabled: !TailscaleService.operatorMissing
                                 && !TailscaleService.isMutating
-                                && VpnService.routeOwner !== "nordvpn"
+                                && !VpnService.routeOwnedByOther("tailscale")
                                 && !VpnService.busy
 
                             background: StyledRect {
@@ -484,8 +484,9 @@ Item {
 
                             StyledToolTip {
                                 visible: exitNodeMenuButton.hovered && !exitNodeMenuButton.enabled
-                                    && VpnService.routeOwner === "nordvpn"
-                                tooltipText: "Disconnect NordVPN first — it currently carries your internet traffic"
+                                    && VpnService.routeOwnedByOther("tailscale")
+                                tooltipText: "Disconnect " + VpnService.otherOwnersLabel("tailscale")
+                                    + " first — it currently carries your internet traffic"
                             }
                         }
 

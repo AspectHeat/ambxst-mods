@@ -67,9 +67,11 @@ Item {
         enabled: !root.busy
         cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
         // Through VpnService, not NordVpnService: a direct call bypasses the confirmation and
-        // the Tailscale teardown when Tailscale owns the default route.
-        onClicked: VpnService.requestProvider("nordvpn", root.country?.token ?? "",
-            NordVpnService.p2pPreferred)
+        // the Tailscale exit-node release when Tailscale owns the default route.
+        onClicked: VpnService.requestProvider("nordvpn", {
+            selection: root.country?.token ?? "",
+            p2p: NordVpnService.p2pPreferred
+        })
     }
 
     ColumnLayout {
@@ -270,9 +272,10 @@ Item {
                         elide: Text.ElideRight
                     }
 
-                    onClicked: VpnService.requestProvider("nordvpn",
-                        (root.country?.token ?? "") + " " + String(cityButton.modelData),
-                        NordVpnService.p2pPreferred)
+                    onClicked: VpnService.requestProvider("nordvpn", {
+                        selection: (root.country?.token ?? "") + " " + String(cityButton.modelData),
+                        p2p: NordVpnService.p2pPreferred
+                    })
                 }
             }
         }

@@ -397,7 +397,7 @@ Item {
                     // claiming egress. Gating only the panel row left this path wide open.
                     // isMutating, not isUpdating, so a background read never disables it.
                     enabled: !TailscaleService.operatorMissing && !TailscaleService.isMutating
-                        && VpnService.routeOwner !== "nordvpn"
+                        && !VpnService.routeOwnedByOther("tailscale")
                         && !VpnService.busy && !VpnService.awaitingConfirmation
 
                     background: StyledRect {
@@ -424,8 +424,9 @@ Item {
                     // A disabled control with no explanation is its own usability bug.
                     StyledToolTip {
                         visible: exitNodeButton.hovered && !exitNodeButton.enabled
-                            && VpnService.routeOwner === "nordvpn"
-                        tooltipText: "Disconnect NordVPN first — it currently carries your internet traffic"
+                            && VpnService.routeOwnedByOther("tailscale")
+                        tooltipText: "Disconnect " + VpnService.otherOwnersLabel("tailscale")
+                            + " first — it currently carries your internet traffic"
                     }
                 }
             }

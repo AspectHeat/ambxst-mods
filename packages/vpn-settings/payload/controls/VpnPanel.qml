@@ -49,10 +49,10 @@ Item {
         }
 
         // Route-owner strip. Appears only when something actually owns egress - Tailscale
-        // merely running is not egress unless an exit node is set (VpnService.routeOwner).
+        // merely running is not egress unless an exit node is set (ownsDefaultRoute).
         StyledRect {
             Layout.fillWidth: true
-            visible: VpnService.routeOwner !== "" && VpnService.routeOwner !== "none"
+            visible: VpnService.routeOwners.length > 0
                 && VpnService.handoffPhase === "idle"
             implicitHeight: 34
             variant: "internalbg"
@@ -61,8 +61,11 @@ Item {
             Text {
                 anchors.centerIn: parent
                 width: parent.width - 20
-                text: VpnService.labelFor(VpnService.routeOwner) + " currently owns the default route"
-                    + (VpnService.bothConnected ? " · both providers connected" : "")
+                text: VpnService.routeOwnerLabel
+                    + (VpnService.routeOwners.length > 1 ? " currently own" : " currently owns")
+                    + " the default route"
+                    + (VpnService.connectedCount === 2 ? " · both providers connected"
+                        : (VpnService.connectedCount > 2 ? " · " + VpnService.connectedCount + " providers connected" : ""))
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
                 font.family: Config.theme.font
