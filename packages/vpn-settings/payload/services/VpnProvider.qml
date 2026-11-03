@@ -49,11 +49,16 @@ QtObject {
     property string statusLabel: ""
     property string statusTone: "off"
 
-    // Handoff wording. Defaults suit a provider whose release is a full disconnect.
+    // Handoff wording. The defaults suit a provider whose releaseRoute() is a full
+    // disconnect; override them if yours does something else.
     property string releasingText: "Disconnecting " + root.label + "…"
+    property string releaseFailedText: "Could not disconnect " + root.label + " right now. Try again."
+    property string releaseTimedOutText: "Timed out disconnecting " + root.label
+    // Shown in the confirmation, followed by "Your connection will drop for a few seconds."
     property string releaseConsequence: root.label
         + " is carrying your internet traffic right now and will be turned off first."
     property string restoreActionText: "Reconnect " + root.label
+    property string restoringText: "Connecting " + root.label + "…"
 
     // SettingsIndex entries in its usual shape, with section 11 and subSection = id.
     property var searchItems: []

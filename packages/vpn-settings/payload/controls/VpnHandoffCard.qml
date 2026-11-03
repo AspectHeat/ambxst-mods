@@ -59,8 +59,9 @@ StyledRect {
             visible: VpnService.awaitingConfirmation
             // Names the consequence in plain language. "Handoff" and "default route" mean
             // nothing to someone who just wants their VPN on.
-            text: VpnService.labelFor(VpnService.routeOwner)
-                + " is carrying your internet traffic right now and will be turned off first."
+            // Wording comes from each released provider (VpnProvider.releaseConsequence), so a
+            // Tailscale exit node is not described as being "turned off".
+            text: VpnService.releaseConsequenceFor(VpnService.handoffTarget)
                 + " Your connection will drop for a few seconds."
             wrapMode: Text.Wrap
             font.family: Config.theme.font
@@ -128,7 +129,7 @@ StyledRect {
             id: recoverButton
             Layout.fillWidth: true
             Layout.topMargin: 2
-            visible: VpnService.handoffPhase === "failed" && VpnService.recoveryProvider !== ""
+            visible: VpnService.handoffPhase === "failed" && VpnService.recoveryProviders.length > 0
             flat: true
             implicitHeight: 30
 
@@ -138,7 +139,7 @@ StyledRect {
             }
 
             contentItem: Text {
-                text: "Reconnect " + VpnService.labelFor(VpnService.recoveryProvider)
+                text: VpnService.restoreActionText()
                 font.family: Config.theme.font
                 font.pixelSize: Styling.fontSize(-1)
                 color: Colors.overBackground

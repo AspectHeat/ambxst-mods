@@ -69,6 +69,24 @@ VpnProvider {
         return NordVpnService.connectTo(selection, options?.p2p ?? false);
     }
 
+    // What was connected when the last handoff released the route, for restoreRoute().
+    property string releasedSelection: ""
+    property bool releasedP2p: false
+
+    function releaseRoute(): bool {
+        const selection = NordVpnService.requestedTarget;
+        const p2p = NordVpnService.p2pPreferred;
+        if (!NordVpnService.disconnect())
+            return false;
+        root.releasedSelection = selection;
+        root.releasedP2p = p2p;
+        return true;
+    }
+
+    function restoreRoute(): bool {
+        return NordVpnService.connectTo(root.releasedSelection, root.releasedP2p);
+    }
+
     // Already connected: a country/city change is a plain reconnect, NOT a handoff. Routing it
     // through the handoff phases made the coordinator see "connected" already true on its
     // first tick and declare success while the reconnect was still in flight.

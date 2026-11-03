@@ -60,8 +60,10 @@ ColumnLayout {
             verticalAlignment: Text.AlignVCenter
         }
 
-        onClicked: VpnService.requestProvider("nordvpn",
-            Config.system.nordvpn.preferredCountry, NordVpnService.p2pPreferred)
+        onClicked: VpnService.requestProvider("nordvpn", {
+            selection: Config.system.nordvpn.preferredCountry,
+            p2p: NordVpnService.p2pPreferred
+        })
     }
 
     // ------------------------------------------------------------ mode selector

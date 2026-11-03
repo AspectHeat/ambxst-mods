@@ -145,8 +145,10 @@ Item {
 
                 onToggleChanged: checked => {
                     if (checked)
-                        VpnService.requestProvider("nordvpn", Config.system.nordvpn.preferredCountry,
-                            NordVpnService.p2pPreferred);
+                        VpnService.requestProvider("nordvpn", {
+                            selection: Config.system.nordvpn.preferredCountry,
+                            p2p: NordVpnService.p2pPreferred
+                        });
                     else
                         NordVpnService.disconnect();
                 }

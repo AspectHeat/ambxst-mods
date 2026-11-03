@@ -39,7 +39,42 @@ VpnProvider {
     // Loaded by URL rather than by type, so modules/services does not have to import the bar.
     trayComponent: Qt.createComponent(Qt.resolvedUrl("../bar/systray/TailscaleTrayItem.qml"))
 
+    // Releasing the route clears the exit node instead of running `tailscale down`, so the
+    // tailnet stays up through a handoff. "Allow LAN access" is never touched.
+    releasingText: "Clearing Tailscale exit node…"
+    releaseFailedText: "Could not clear the Tailscale exit node right now. Try again."
+    releaseTimedOutText: "Timed out clearing the Tailscale exit node"
+    releaseConsequence: "Tailscale is sending your internet traffic through an exit node right now"
+        + " and will stop using it first. Your tailnet stays connected."
+    restoreActionText: "Restore Tailscale exit node"
+    restoringText: "Restoring Tailscale exit node…"
+
+    // The exit node released by the last handoff, for restoreRoute().
+    property string releasedExitNode: ""
+
+    // TailscaleService's set/clear functions return nothing, but they go through runMutation,
+    // which starts the command unless one of exactly these holds. Checking the same guard
+    // first is what lets this return an honest "started".
+    function canMutate(): bool {
+        return TailscaleService.available && TailscaleService.enabled && !TailscaleService.isMutating;
+    }
+
     function up(options): bool {
         return TailscaleService.up();
+    }
+
+    function releaseRoute(): bool {
+        if (!root.canMutate())
+            return false;
+        root.releasedExitNode = TailscaleService.exitNodeId;
+        TailscaleService.clearExitNode();
+        return true;
+    }
+
+    function restoreRoute(): bool {
+        if (root.releasedExitNode === "" || !root.canMutate())
+            return false;
+        TailscaleService.setExitNode(root.releasedExitNode);
+        return true;
     }
 }
