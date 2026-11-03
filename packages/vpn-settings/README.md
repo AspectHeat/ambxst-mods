@@ -36,8 +36,10 @@ on the next `ambxst reload`. A failed build never touches the running shell.
 
 ## Requirements
 
-Install the `tailscale` and `nordvpn` CLIs for the respective pages. Each
-provider is independent, so one page works without the other installed.
+No VPN CLI is required to enable the mod. Each provider page detects its own
+CLI and shows "Not installed" when it is missing, so you only need the
+providers you use. The NordVPN page has a setup button that installs and
+configures the `nordvpn` CLI for you.
 
 Works with Ambxst `>=1.3.0 <1.4.0`.
 

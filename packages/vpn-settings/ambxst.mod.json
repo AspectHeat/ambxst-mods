@@ -18,10 +18,7 @@
   },
   "dependencies": [],
   "conflicts": [],
-  "commands": [
-    "tailscale",
-    "nordvpn"
-  ],
+  "commands": [],
   "permissions": [
     "Runs the tailscale CLI to read tailnet status and peers, and to set or clear an exit node",
     "Runs the nordvpn CLI to read status, account and server lists, and to connect or disconnect",
