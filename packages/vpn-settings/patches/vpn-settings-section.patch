@@ -87,8 +87,8 @@ index aaef9ec..75f13b4 100644
              section: 9,
              isIcon: false
          }
--    ]
-+    ])
+-    ])
++    ]))
  
      // Filtered sections based on search query
      readonly property var filteredSections: {
